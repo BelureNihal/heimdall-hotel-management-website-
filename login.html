@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bifrost Gateway Login - Hotel Asgard</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="assets/heimdall.png" type="image/png">
+    <style>
+        .auth-container {
+            max-width: 480px;
+            margin: 4rem auto;
+            position: relative;
+        }
+
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-gold);
+        }
+
+        .auth-tab {
+            flex: 1;
+            padding: 0.75rem;
+            text-align: center;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-family: var(--font-heading);
+            font-size: 1rem;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        .auth-tab.active {
+            color: var(--gold-light);
+            border-bottom-color: var(--gold-primary);
+            background: rgba(229, 193, 88, 0.05);
+        }
+
+        .quick-accounts-box {
+            background: rgba(28, 18, 13, 0.95);
+            border: 1px solid var(--border-gold);
+            border-radius: 8px;
+            padding: 1.25rem;
+            margin-top: 1.5rem;
+            font-size: 0.85rem;
+        }
+
+        .quick-btn {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            padding: 0.6rem 1rem;
+            margin-top: 0.5rem;
+            background: #140d0a;
+            border: 1px solid var(--border-subtle);
+            border-radius: 6px;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: var(--font-body);
+        }
+
+        .quick-btn:hover {
+            border-color: var(--gold-primary);
+            background: rgba(229, 193, 88, 0.1);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- SIMPLE NAV -->
+    <nav class="asgard-nav">
+        <div class="nav-container" style="justify-content: center;">
+            <a href="login.html" class="brand-wrapper">
+                <img src="assets/heimdall.png" alt="Heimdall Gatekeeper" class="brand-heimdall-icon">
+                <div class="brand-text">
+                    <h1>Hotel Asgard</h1>
+                    <p>Citadel of the Nine Realms</p>
+                </div>
+            </a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="auth-container asgard-card">
+            <!-- HEIMDALL GREETING MINI -->
+            <div style="text-align: center; margin-bottom: 1.5rem;">
+                <img src="assets/heimdall.png" alt="Heimdall" style="width: 85px; height: 85px; border-radius: 50%; border: 2px solid var(--gold-primary); object-fit: cover; object-position: top; box-shadow: 0 0 15px var(--gold-glow); margin-bottom: 8px;">
+                <h2 style="font-family: var(--font-heading); color: var(--gold-light); font-size: 1.5rem;">
+                    Bifrost Gateway Gatekeeper
+                </h2>
+                <p style="color: var(--text-secondary); font-size: 0.85rem; font-style: italic;">
+                    "Speak your mortal or immortal name, and gain entry to Hotel Asgard."
+                </p>
+            </div>
+
+            <!-- TABS -->
+            <div class="auth-tabs">
+                <button class="auth-tab active" id="tabLogin" onclick="switchAuthTab('login')">Enter Asgard (Login)</button>
+                <button class="auth-tab" id="tabRegister" onclick="switchAuthTab('register')">Enroll in Citadel (Register)</button>
+            </div>
+
+            <!-- LOGIN FORM -->
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="loginUsername">Realm Username</label>
+                    <input type="text" id="loginUsername" class="form-control" placeholder="Enter username (e.g. guest or admin)" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="loginPassword">Cipher / Password</label>
+                    <input type="password" id="loginPassword" class="form-control" placeholder="Enter secret password" required>
+                </div>
+
+                <button type="submit" class="btn btn-gold" style="width: 100%; padding: 0.75rem; margin-top: 0.5rem;">
+                    ⚡ Cross the Bifrost Bridge
+                </button>
+            </form>
+
+            <!-- REGISTER FORM -->
+            <form id="registerForm" style="display: none;">
+                <div class="form-group">
+                    <label for="regName">Warrior / Royal Name</label>
+                    <input type="text" id="regName" class="form-control" placeholder="E.g., Lady Sif" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="regRealm">Realm of Origin</label>
+                    <input type="text" id="regRealm" class="form-control" placeholder="E.g., Vanaheim, Midgard, Alfheim" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="regUsername">Choose Username</label>
+                    <input type="text" id="regUsername" class="form-control" placeholder="Unique username" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="regPhone">Communication Beacon / Phone</label>
+                    <input type="text" id="regPhone" class="form-control" placeholder="+99 800-ASGARD">
+                </div>
+
+                <div class="form-group">
+                    <label for="regPassword">Secret Password</label>
+                    <input type="password" id="regPassword" class="form-control" placeholder="Create strong cipher" required>
+                </div>
+
+                <button type="submit" class="btn btn-gold" style="width: 100%; padding: 0.75rem; margin-top: 0.5rem;">
+                    🛡️ Register into Citadel Ledger
+                </button>
+            </form>
+
+            <!-- QUICK 1-CLICK DEMO ACCOUNTS -->
+            <div class="quick-accounts-box">
+                <div style="font-weight: 700; color: var(--gold-light); margin-bottom: 6px; font-family: var(--font-heading); display:flex; align-items:center; gap:6px;">
+                    <span>⚡</span> 1-Click Instant Demo Portals
+                </div>
+                <div style="color: var(--text-muted); font-size: 0.78rem; margin-bottom: 10px;">
+                    Test either side of Hotel Asgard instantly without typing:
+                </div>
+
+                <button class="quick-btn" onclick="quickFillAndLogin('guest', 'password123')">
+                    <div>
+                        <strong style="color: var(--gold-primary);">⚡ Guest Account (Thor Odinson)</strong>
+                        <div style="font-size: 0.75rem; color: var(--text-muted);">username: <code>guest</code> | pass: <code>password123</code></div>
+                    </div>
+                    <span class="btn btn-gold btn-sm" style="padding: 2px 8px;">Login →</span>
+                </button>
+
+                <button class="quick-btn" onclick="quickFillAndLogin('admin', 'admin123')">
+                    <div>
+                        <strong style="color: #4ec9b0;">👁️ Owner Console (Heimdall Admin)</strong>
+                        <div style="font-size: 0.75rem; color: var(--text-muted);">username: <code>admin</code> | pass: <code>admin123</code></div>
+                    </div>
+                    <span class="btn btn-gold btn-sm" style="padding: 2px 8px;">Login →</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="asgard-footer">
+        <div class="footer-content">
+            <div class="footer-heimdall-sig">⚔️ "Heimdall sees all, hears all, welcomes all worthy travelers" ⚔️</div>
+            <p>Hotel Asgard • Sovereign Sanctuary of the Aesir • Realm Management System</p>
+        </div>
+    </footer>
+
+    <!-- JAVASCRIPT -->
+    <script src="db.js"></script>
+    <script>
+        function switchAuthTab(mode) {
+            if (mode === 'login') {
+                document.getElementById('tabLogin').classList.add('active');
+                document.getElementById('tabRegister').classList.remove('active');
+                document.getElementById('loginForm').style.display = 'block';
+                document.getElementById('registerForm').style.display = 'none';
+            } else {
+                document.getElementById('tabRegister').classList.add('active');
+                document.getElementById('tabLogin').classList.remove('active');
+                document.getElementById('loginForm').style.display = 'none';
+                document.getElementById('registerForm').style.display = 'block';
+            }
+        }
+
+        // Login Submit
+        document.getElementById('loginForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const u = document.getElementById('loginUsername').value;
+            const p = document.getElementById('loginPassword').value;
+
+            const res = Auth.login(u, p);
+            if (res.success) {
+                if (res.user.role === 'owner') {
+                    window.location.href = 'owner.html';
+                } else {
+                    window.location.href = 'index.html';
+                }
+            } else {
+                alert(res.message);
+            }
+        });
+
+        // Register Submit
+        document.getElementById('registerForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = document.getElementById('regName').value;
+            const realm = document.getElementById('regRealm').value;
+            const username = document.getElementById('regUsername').value;
+            const phone = document.getElementById('regPhone').value;
+            const pass = document.getElementById('regPassword').value;
+
+            const res = DB.registerUser(username, pass, name, realm, phone);
+            if (res.success) {
+                alert(`Hail, ${name}! Your account has been recorded in the Asgard Ledger. Logging you in...`);
+                Auth.login(username, pass);
+                window.location.href = 'index.html';
+            } else {
+                alert(res.message);
+            }
+        });
+
+        // 1-Click Instant Login
+        window.quickFillAndLogin = function(username, password) {
+            document.getElementById('loginUsername').value = username;
+            document.getElementById('loginPassword').value = password;
+            const res = Auth.login(username, password);
+            if (res.success) {
+                window.location.href = res.user.role === 'owner' ? 'owner.html' : 'index.html';
+            }
+        };
+    </script>
+</body>
+
+</html>

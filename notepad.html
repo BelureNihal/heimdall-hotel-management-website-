@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Royal Notepad Ledger - Hotel Asgard | Gatekeeper Scrolls</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="assets/heimdall.png" type="image/png">
+    <style>
+        .notepad-app-window {
+            background: #1e1e1e;
+            border: 2px solid var(--border-gold);
+            border-radius: 10px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.8), var(--shadow-gold);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            font-family: var(--font-mono);
+        }
+
+        .notepad-menu-bar {
+            background: #252526;
+            padding: 6px 14px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            border-bottom: 1px solid #333;
+            font-size: 0.82rem;
+            color: #cccccc;
+        }
+
+        .notepad-menu-item {
+            cursor: pointer;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .notepad-menu-item:hover {
+            background: #3e3e42;
+            color: #fff;
+        }
+
+        .notepad-toolbar {
+            background: #2d2d30;
+            padding: 8px 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #333;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .notepad-editor-textarea {
+            width: 100%;
+            height: 380px;
+            background: #181818;
+            color: #d4d4d4;
+            border: none;
+            padding: 16px;
+            font-family: var(--font-mono);
+            font-size: 0.92rem;
+            line-height: 1.6;
+            resize: vertical;
+        }
+
+        .notepad-editor-textarea:focus {
+            outline: none;
+        }
+
+        .notepad-status-bar {
+            background: #007acc;
+            color: #ffffff;
+            padding: 4px 14px;
+            font-size: 0.75rem;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .notes-list-item {
+            background: #18120e;
+            border: 1px solid var(--border-gold);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 0.8rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s ease;
+        }
+
+        .notes-list-item:hover {
+            border-color: var(--gold-light);
+            background: #211712;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- NAVIGATION -->
+    <nav class="asgard-nav">
+        <div class="nav-container">
+            <a href="index.html" class="brand-wrapper">
+                <img src="assets/heimdall.png" alt="Heimdall Gatekeeper" class="brand-heimdall-icon">
+                <div class="brand-text">
+                    <h1>Hotel Asgard</h1>
+                    <p>Citadel of the Nine Realms</p>
+                </div>
+            </a>
+
+            <ul class="nav-links">
+                <li><a href="index.html">🛡️ Gatekeeper Portal</a></li>
+                <li><a href="rooms.html">🏰 Celestial Chambers</a></li>
+                <li><a href="notepad.html" class="active">📜 Royal Notepad (.txt)</a></li>
+                <li id="ownerNavLink" style="display: none;"><a href="owner.html">⚡ Allfather Console</a></li>
+            </ul>
+
+            <div class="nav-auth-user">
+                <div class="user-badge" id="navUserBadge">
+                    <span id="userAvatar">⚡</span>
+                    <span id="navUsername">Thor Odinson</span>
+                </div>
+                <button onclick="Auth.logout()" class="btn btn-crimson btn-sm">Depart (Logout)</button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        <!-- HEADER -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+            <div>
+                <div style="color: var(--gold-primary); font-family: var(--font-heading); font-size: 0.85rem; letter-spacing: 2px;">
+                    ✦ ASGARDIAN DATA ENGINE & NOTEPAD EXPORTER ✦
+                </div>
+                <h1 style="font-family: var(--font-heading); font-size: 2.2rem; color: var(--gold-light);">
+                    Royal Notepad & Guest Scroll System
+                </h1>
+                <p style="color: var(--text-secondary); font-size: 0.9rem;">
+                    Perform full CRUD operations on notes, logs, and room vouchers. Download real <code>.txt</code> files for Notepad!
+                </p>
+            </div>
+
+            <div style="display: flex; gap: 10px;">
+                <button onclick="downloadMasterNotepad()" class="btn btn-notepad">
+                    💾 Export Entire Account to Notepad (.txt)
+                </button>
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1.3fr; gap: 2rem;">
+            <!-- LEFT PANEL: NOTES CRUD LIST & CREATION FORM -->
+            <div>
+                <!-- CREATE NOTE ACCORDION / FORM -->
+                <div class="asgard-card" style="margin-bottom: 1.5rem;">
+                    <h3 style="font-family: var(--font-heading); color: var(--gold-light); font-size: 1.2rem; margin-bottom: 1rem;">
+                        ✍️ Create New Notepad Entry (Create)
+                    </h3>
+                    <form id="newNoteForm">
+                        <div class="form-group">
+                            <label for="newNoteTitle">Scroll Title / Subject</label>
+                            <input type="text" id="newNoteTitle" class="form-control" placeholder="E.g., Special Feast Request, Bifrost Timetable..." required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="newNoteCategory">Category</label>
+                            <select id="newNoteCategory" class="form-control">
+                                <option value="Guest Special Request">Guest Special Request</option>
+                                <option value="Gatekeeper Protocol">Gatekeeper Protocol</option>
+                                <option value="Chamber Service Note">Chamber Service Note</option>
+                                <option value="Bifrost Transit Schedule">Bifrost Transit Schedule</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="newNoteContent">Scroll Content (Saved to Notepad)</label>
+                            <textarea id="newNoteContent" class="form-control" rows="4" placeholder="Write instructions, dietary requirements, armor service..." required></textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-gold" style="width: 100%;">
+                            ⚡ Inscribe & Save to Notepad
+                        </button>
+                    </form>
+                </div>
+
+                <!-- READ & DELETE NOTES LIST -->
+                <div class="asgard-card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <h3 style="font-family: var(--font-heading); color: var(--gold-light); font-size: 1.2rem;">
+                            📑 Your Saved Scrolls (<span id="notesCount">0</span>)
+                        </h3>
+                    </div>
+                    <div id="notesContainerList" style="max-height: 400px; overflow-y: auto;">
+                        <!-- Notes populated via JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT PANEL: INTERACTIVE NOTEPAD APP SIMULATOR -->
+            <div>
+                <div class="notepad-app-window">
+                    <div class="notepad-menu-bar">
+                        <span class="notepad-menu-item" onclick="downloadCurrentEditorText()">File (Save .txt)</span>
+                        <span class="notepad-menu-item" onclick="loadAccountSummaryIntoEditor()">Load Account Summary</span>
+                        <span class="notepad-menu-item" onclick="clearEditor()">Clear</span>
+                        <span style="margin-left: auto; color: #858585;" id="currentFileNameDisplay">Asgard_Notepad.txt</span>
+                    </div>
+
+                    <div class="notepad-toolbar">
+                        <div style="color: #4ec9b0; font-size: 0.8rem; display: flex; align-items: center; gap: 6px;">
+                            <span>📜</span>
+                            <span id="editorSubjectTag">Live Account Ledger & Voucher</span>
+                        </div>
+                        <div style="display: flex; gap: 8px;">
+                            <button class="btn btn-notepad btn-sm" onclick="downloadCurrentEditorText()">
+                                💾 Download .txt File
+                            </button>
+                        </div>
+                    </div>
+
+                    <textarea id="notepadEditor" class="notepad-editor-textarea" spellcheck="false" oninput="updateNotepadStatusBar()"></textarea>
+
+                    <div class="notepad-status-bar">
+                        <span id="sbLinesChars">Ln 1, Col 1</span>
+                        <span>UTF-8 | Windows/Unix Text Format</span>
+                        <span id="sbTimestamp">Synced with Asgard DB</span>
+                    </div>
+                </div>
+
+                <div style="margin-top: 1rem; padding: 1rem; background: #150f0c; border: 1px solid var(--border-gold); border-radius: 8px; font-size: 0.85rem; color: var(--text-secondary);">
+                    💡 <strong>Notepad CRUD Integration:</strong> Every booking made with Heimdall, every update to your dates, and every personal scroll is persistently synchronized to your account in the database and formatted ready for instant export to Windows Notepad or macOS TextEdit as standard <code>.txt</code> files.
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- EDIT NOTE MODAL (UPDATE OPERATION) -->
+    <div id="editNoteModal" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3>✏️ Edit Notepad Scroll</h3>
+                <button class="modal-close" onclick="closeEditNoteModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="editNoteForm">
+                    <input type="hidden" id="editNoteId">
+
+                    <div class="form-group">
+                        <label for="editNoteTitle">Scroll Title</label>
+                        <input type="text" id="editNoteTitle" class="form-control" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editNoteCategory">Category</label>
+                        <select id="editNoteCategory" class="form-control">
+                            <option value="Guest Special Request">Guest Special Request</option>
+                            <option value="Gatekeeper Protocol">Gatekeeper Protocol</option>
+                            <option value="Chamber Service Note">Chamber Service Note</option>
+                            <option value="Bifrost Transit Schedule">Bifrost Transit Schedule</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editNoteContent">Scroll Content</label>
+                        <textarea id="editNoteContent" class="form-control" rows="5" required></textarea>
+                    </div>
+
+                    <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                        <button type="button" class="btn btn-outline-gold" onclick="closeEditNoteModal()">Cancel</button>
+                        <button type="submit" class="btn btn-gold">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="asgard-footer">
+        <div class="footer-content">
+            <div class="footer-heimdall-sig">⚔️ Heimdall's Watchful Eye Inscribes All Truths ⚔️</div>
+            <p>Hotel Asgard • Sovereign Sanctuary of the Aesir • Realm Management System</p>
+        </div>
+    </footer>
+
+    <!-- JAVASCRIPT -->
+    <script src="db.js"></script>
+    <script>
+        const currentUser = Auth.protectRoute();
+
+        if (currentUser) {
+            document.getElementById("navUsername").innerText = `${currentUser.name} (${currentUser.realm})`;
+            document.getElementById("userAvatar").innerText = currentUser.avatar || "⚡";
+            
+            if (currentUser.role === "owner") {
+                document.getElementById("ownerNavLink").style.display = "inline-block";
+            }
+
+            // Render Notes List (READ)
+            function renderNotesList() {
+                const container = document.getElementById("notesContainerList");
+                container.innerHTML = "";
+                const userNotes = currentUser.role === "owner" ? DB.getNotes() : DB.getNotes(currentUser.id);
+                document.getElementById("notesCount").innerText = userNotes.length;
+
+                if (userNotes.length === 0) {
+                    container.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 1.5rem;">No saved scrolls yet. Create one above!</div>`;
+                    return;
+                }
+
+                userNotes.forEach(note => {
+                    const div = document.createElement("div");
+                    div.className = "notes-list-item";
+                    div.innerHTML = `
+                        <div style="cursor: pointer; flex-grow: 1;" onclick="viewNoteInEditor('${note.id}')">
+                            <strong style="color: var(--gold-light); font-size: 0.95rem;">${note.title}</strong>
+                            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">
+                                ✦ ${note.category} • by ${note.author} • ${note.date}
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 6px;">
+                            <button class="btn btn-outline-gold btn-sm" onclick="openEditNoteModal('${note.id}')" title="Edit Note">✏️</button>
+                            <button class="btn btn-notepad btn-sm" onclick="downloadSingleNote('${note.id}')" title="Save .txt">💾</button>
+                            <button class="btn btn-crimson btn-sm" onclick="deleteNoteItem('${note.id}')" title="Delete Note">🗑️</button>
+                        </div>
+                    `;
+                    container.appendChild(div);
+                });
+            }
+
+            // CREATE NOTE
+            document.getElementById("newNoteForm").addEventListener("submit", (e) => {
+                e.preventDefault();
+                const title = document.getElementById("newNoteTitle").value;
+                const category = document.getElementById("newNoteCategory").value;
+                const content = document.getElementById("newNoteContent").value;
+
+                const res = DB.addNote({
+                    userId: currentUser.id,
+                    author: currentUser.name,
+                    title: title,
+                    category: category,
+                    content: content
+                });
+
+                if (res.success) {
+                    alert("Scroll inscribed and saved to Notepad database!");
+                    document.getElementById("newNoteTitle").value = "";
+                    document.getElementById("newNoteContent").value = "";
+                    renderNotesList();
+                    viewNoteInEditor(res.note.id);
+                }
+            });
+
+            // UPDATE NOTE
+            window.openEditNoteModal = function(noteId) {
+                const note = DB.getNoteById(noteId);
+                if (!note) return;
+
+                document.getElementById("editNoteId").value = note.id;
+                document.getElementById("editNoteTitle").value = note.title;
+                document.getElementById("editNoteCategory").value = note.category;
+                document.getElementById("editNoteContent").value = note.content;
+
+                document.getElementById("editNoteModal").classList.add("active");
+            };
+
+            window.closeEditNoteModal = function() {
+                document.getElementById("editNoteModal").classList.remove("active");
+            };
+
+            document.getElementById("editNoteForm").addEventListener("submit", (e) => {
+                e.preventDefault();
+                const id = document.getElementById("editNoteId").value;
+                const title = document.getElementById("editNoteTitle").value;
+                const category = document.getElementById("editNoteCategory").value;
+                const content = document.getElementById("editNoteContent").value;
+
+                const res = DB.updateNote(id, title, content, category);
+                if (res.success) {
+                    alert("Scroll updated successfully!");
+                    closeEditNoteModal();
+                    renderNotesList();
+                    viewNoteInEditor(id);
+                }
+            });
+
+            // DELETE NOTE
+            window.deleteNoteItem = function(noteId) {
+                if (confirm("Are you sure you want to discard this scroll from the Notepad database?")) {
+                    DB.deleteNote(noteId);
+                    renderNotesList();
+                    loadAccountSummaryIntoEditor();
+                }
+            };
+
+            // VIEW NOTE IN EDITOR
+            window.viewNoteInEditor = function(noteId) {
+                const note = DB.getNoteById(noteId);
+                if (!note) return;
+
+                const text = `=======================================================\n` +
+                             `TITLE:    ${note.title}\n` +
+                             `AUTHOR:   ${note.author}\n` +
+                             `CATEGORY: ${note.category}\n` +
+                             `DATE:     ${note.date}\n` +
+                             `=======================================================\n\n` +
+                             `${note.content}\n`;
+
+                document.getElementById("notepadEditor").value = text;
+                document.getElementById("currentFileNameDisplay").innerText = `${note.title.replace(/[^a-zA-Z0-9_-]/g, "_")}.txt`;
+                document.getElementById("editorSubjectTag").innerText = `Viewing: ${note.title}`;
+                updateNotepadStatusBar();
+            };
+
+            // DOWNLOAD SINGLE NOTE AS .TXT
+            window.downloadSingleNote = function(noteId) {
+                const note = DB.getNoteById(noteId);
+                if (!note) return;
+                const text = `=======================================================\n` +
+                             `HOTEL ASGARD - ROYAL SCROLL NOTEPAD\n` +
+                             `TITLE:    ${note.title}\n` +
+                             `AUTHOR:   ${note.author}\n` +
+                             `CATEGORY: ${note.category}\n` +
+                             `TIMESTAMP: ${note.date}\n` +
+                             `=======================================================\n\n` +
+                             `${note.content}\n`;
+                DB.downloadAsNotepadTxt(`${note.title.replace(/[^a-zA-Z0-9_-]/g, "_")}.txt`, text);
+            };
+
+            // DOWNLOAD CURRENT TEXT IN EDITOR
+            window.downloadCurrentEditorText = function() {
+                const text = document.getElementById("notepadEditor").value;
+                const fname = document.getElementById("currentFileNameDisplay").innerText || "asgard_notes.txt";
+                DB.downloadAsNotepadTxt(fname, text);
+            };
+
+            // LOAD ACCOUNT REPORT INTO EDITOR
+            window.loadAccountSummaryIntoEditor = function() {
+                const report = currentUser.role === "owner" 
+                    ? DB.generateMasterDatabaseNotepadReport() 
+                    : DB.generateUserNotepadReport(currentUser);
+                
+                document.getElementById("notepadEditor").value = report;
+                document.getElementById("currentFileNameDisplay").innerText = `${currentUser.username}_hotel_asgard_ledger.txt`;
+                document.getElementById("editorSubjectTag").innerText = `Full ${currentUser.role === 'owner' ? 'Master Database' : 'User Account'} Ledger`;
+                updateNotepadStatusBar();
+            };
+
+            window.clearEditor = function() {
+                document.getElementById("notepadEditor").value = "";
+                document.getElementById("currentFileNameDisplay").innerText = "untitled.txt";
+                document.getElementById("editorSubjectTag").innerText = "Empty Buffer";
+                updateNotepadStatusBar();
+            };
+
+            window.updateNotepadStatusBar = function() {
+                const text = document.getElementById("notepadEditor").value;
+                const lines = text.split("\n").length;
+                const chars = text.length;
+                document.getElementById("sbLinesChars").innerText = `Lines: ${lines}, Chars: ${chars}`;
+            };
+
+            window.downloadMasterNotepad = function() {
+                loadAccountSummaryIntoEditor();
+                downloadCurrentEditorText();
+            };
+
+            // Initialize
+            renderNotesList();
+            loadAccountSummaryIntoEditor();
+        }
+    </script>
+</body>
+
+</html>

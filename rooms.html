@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Celestial Chambers - Hotel Asgard | Heimdall's Keep</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="assets/heimdall.png" type="image/png">
+</head>
+
+<body>
+    <!-- NAVIGATION -->
+    <nav class="asgard-nav">
+        <div class="nav-container">
+            <a href="index.html" class="brand-wrapper">
+                <img src="assets/heimdall.png" alt="Heimdall Gatekeeper" class="brand-heimdall-icon">
+                <div class="brand-text">
+                    <h1>Hotel Asgard</h1>
+                    <p>Citadel of the Nine Realms</p>
+                </div>
+            </a>
+
+            <ul class="nav-links">
+                <li><a href="index.html">🛡️ Gatekeeper Portal</a></li>
+                <li><a href="rooms.html" class="active">🏰 Celestial Chambers</a></li>
+                <li><a href="notepad.html">📜 Royal Notepad (.txt)</a></li>
+                <li id="ownerNavLink" style="display: none;"><a href="owner.html">⚡ Allfather Console</a></li>
+            </ul>
+
+            <div class="nav-auth-user">
+                <div class="user-badge" id="navUserBadge">
+                    <span id="userAvatar">⚡</span>
+                    <span id="navUsername">Thor Odinson</span>
+                </div>
+                <button onclick="Auth.logout()" class="btn btn-crimson btn-sm">Depart (Logout)</button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        <!-- HEADER -->
+        <div style="text-align: center; margin-bottom: 2.5rem;">
+            <div style="color: var(--gold-primary); font-family: var(--font-heading); font-size: 0.95rem; letter-spacing: 2px; text-transform: uppercase;">
+                ✨ Sanctuaries of the Gods ✨
+            </div>
+            <h1 style="font-family: var(--font-heading); font-size: 2.5rem; color: var(--gold-light); margin-top: 0.5rem;">
+                Celestial Chambers & Royal Suites
+            </h1>
+            <p style="color: var(--text-secondary); max-width: 650px; margin: 0.5rem auto 0;">
+                Each sacred hall is fortified with divine enchantments, mead dispensers, and stargazing balconies under the watchful eyes of Heimdall.
+            </p>
+        </div>
+
+        <!-- FILTERS & CONTROLS -->
+        <div class="asgard-card" style="padding: 1.25rem; margin-bottom: 2rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <button class="btn btn-gold btn-sm" onclick="filterRooms('all')">All Chambers</button>
+                    <button class="btn btn-outline-gold btn-sm" onclick="filterRooms('Available')">🟢 Available Only</button>
+                    <button class="btn btn-outline-gold btn-sm" onclick="filterRooms('Suite')">👑 Royal Suites</button>
+                </div>
+
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <input type="text" id="searchRoomsInput" placeholder="Search chambers or amenities..." 
+                           class="form-control" style="width: 250px; padding: 0.4rem 0.8rem; font-size: 0.85rem;"
+                           oninput="renderRoomsGrid()">
+                </div>
+            </div>
+        </div>
+
+        <!-- ROOMS GRID -->
+        <div class="rooms-grid" id="roomsDisplayGrid">
+            <!-- Populated via JS -->
+        </div>
+    </main>
+
+    <!-- DIRECT BOOKING MODAL -->
+    <div id="quickBookModal" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3>🗡️ Heimdall Gatekeeper Chamber Booking</h3>
+                <button class="modal-close" onclick="closeQuickBookModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="quickBookForm">
+                    <input type="hidden" id="qbRoomId">
+
+                    <div style="margin-bottom: 1.25rem; padding: 1rem; background: #1a100b; border-radius: 8px; border: 1px solid var(--border-gold);">
+                        <h4 id="qbRoomTitle" style="color: var(--gold-light); font-family: var(--font-heading); margin-bottom: 4px;">Valhalla Penthouse</h4>
+                        <div id="qbRoomSubtitle" style="color: var(--text-secondary); font-size: 0.85rem;">Room #101 • 350 Gold Coins / Night</div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="form-group">
+                            <label for="qbCheckIn">Bifrost Arrival</label>
+                            <input type="date" id="qbCheckIn" class="form-control" required onchange="calcQbTotal()">
+                        </div>
+                        <div class="form-group">
+                            <label for="qbCheckOut">Realm Departure</label>
+                            <input type="date" id="qbCheckOut" class="form-control" required onchange="calcQbTotal()">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="qbGuests">Honored Guests</label>
+                        <input type="number" id="qbGuests" class="form-control" min="1" max="6" value="1" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="qbRequests">Special Inscriptions (Mead, Feast, Armor Rack)</label>
+                        <input type="text" id="qbRequests" class="form-control" placeholder="E.g., Extra Valkyrie feast, enchanted fire hearth...">
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; background: #120b08; padding: 0.75rem 1rem; border-radius: 6px; margin-bottom: 1.25rem; border: 1px solid var(--border-gold);">
+                        <span style="font-size: 0.85rem; color: var(--text-secondary);">Total Investment:</span>
+                        <strong id="qbTotalDisplay" style="color: var(--gold-primary); font-size: 1.25rem;">0 Gold Coins</strong>
+                    </div>
+
+                    <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                        <button type="button" class="btn btn-outline-gold" onclick="closeQuickBookModal()">Cancel</button>
+                        <button type="submit" class="btn btn-gold">Confirm with Heimdall</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="asgard-footer">
+        <div class="footer-content">
+            <div class="footer-heimdall-sig">⚔️ Guarded by Heimdall, Watchman of the Gods ⚔️</div>
+            <p>Hotel Asgard • Realm Chamber Registry</p>
+        </div>
+    </footer>
+
+    <!-- JAVASCRIPT -->
+    <script src="db.js"></script>
+    <script>
+        const currentUser = Auth.protectRoute();
+
+        if (currentUser) {
+            document.getElementById("navUsername").innerText = `${currentUser.name} (${currentUser.realm})`;
+            document.getElementById("userAvatar").innerText = currentUser.avatar || "⚡";
+            
+            if (currentUser.role === "owner") {
+                document.getElementById("ownerNavLink").style.display = "inline-block";
+            }
+
+            let activeFilter = 'all';
+
+            window.filterRooms = function(filter) {
+                activeFilter = filter;
+                renderRoomsGrid();
+            };
+
+            function renderRoomsGrid() {
+                const grid = document.getElementById("roomsDisplayGrid");
+                grid.innerHTML = "";
+                const rooms = DB.getRooms();
+                const search = (document.getElementById("searchRoomsInput").value || "").toLowerCase();
+
+                let filtered = rooms.filter(r => {
+                    const matchesSearch = r.name.toLowerCase().includes(search) || 
+                                          r.type.toLowerCase().includes(search) ||
+                                          r.number.includes(search) ||
+                                          r.amenities.some(a => a.toLowerCase().includes(search));
+                    if (!matchesSearch) return false;
+
+                    if (activeFilter === 'Available') return r.status === 'Available';
+                    if (activeFilter === 'Suite') return r.type.toLowerCase().includes('suite');
+                    return true;
+                });
+
+                if (filtered.length === 0) {
+                    grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 3rem; color: var(--text-muted);">No celestial chambers match your search criteria.</div>`;
+                    return;
+                }
+
+                filtered.forEach(room => {
+                    const isAvail = room.status === "Available";
+                    const statusClass = isAvail ? "status-available" : "status-occupied";
+
+                    const amenitiesHtml = room.amenities.map(a => `<span class="amenity-tag">✦ ${a}</span>`).join('');
+
+                    grid.innerHTML += `
+                        <div class="room-card">
+                            <div class="room-img-wrapper">
+                                <img src="${room.image}" alt="${room.name}" class="room-img" onerror="this.src='https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=800&q=80'">
+                                <div class="room-badge">
+                                    <span class="status-pill ${statusClass}">${room.status}</span>
+                                </div>
+                            </div>
+                            <div class="room-card-content">
+                                <div class="room-type">Chamber #${room.number} • ${room.type}</div>
+                                <h3>${room.name}</h3>
+                                <p class="room-desc">${room.desc}</p>
+                                
+                                <div class="room-amenities">
+                                    ${amenitiesHtml}
+                                </div>
+
+                                <div class="room-pricing">
+                                    <div>
+                                        <div class="price-val">${room.price} Gold</div>
+                                        <div class="price-sub">per night • up to ${room.capacity} deities</div>
+                                    </div>
+                                    <div>
+                                        ${isAvail ? `
+                                            <button class="btn btn-gold btn-sm" onclick="openQuickBookModal('${room.id}')">
+                                                ⚔️ Book Chamber
+                                            </button>
+                                        ` : `
+                                            <button class="btn btn-outline-gold btn-sm" disabled style="opacity: 0.5; cursor: not-allowed;">
+                                                Occupied
+                                            </button>
+                                        `}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            // Quick Booking Modal Logic
+            let selectedQuickRoom = null;
+
+            window.openQuickBookModal = function(roomId) {
+                const room = DB.getRoomById(roomId);
+                if (!room) return;
+                selectedQuickRoom = room;
+
+                document.getElementById("qbRoomId").value = room.id;
+                document.getElementById("qbRoomTitle").innerText = `${room.name} (Room #${room.number})`;
+                document.getElementById("qbRoomSubtitle").innerText = `${room.type} • ${room.price} Gold Coins / Night • Max ${room.capacity} Guests`;
+
+                const today = new Date();
+                const tomorrow = new Date(today);
+                tomorrow.setDate(tomorrow.getDate() + 1);
+                const dep = new Date(tomorrow);
+                dep.setDate(dep.getDate() + 3);
+
+                document.getElementById("qbCheckIn").value = tomorrow.toISOString().split("T")[0];
+                document.getElementById("qbCheckOut").value = dep.toISOString().split("T")[0];
+                document.getElementById("qbCheckIn").min = today.toISOString().split("T")[0];
+                document.getElementById("qbCheckOut").min = tomorrow.toISOString().split("T")[0];
+
+                calcQbTotal();
+                document.getElementById("quickBookModal").classList.add("active");
+            };
+
+            window.closeQuickBookModal = function() {
+                document.getElementById("quickBookModal").classList.remove("active");
+                selectedQuickRoom = null;
+            };
+
+            window.calcQbTotal = function() {
+                if (!selectedQuickRoom) return;
+                const d1 = new Date(document.getElementById("qbCheckIn").value);
+                const d2 = new Date(document.getElementById("qbCheckOut").value);
+                const nights = Math.ceil((d2 - d1) / (1000 * 60 * 60 * 24));
+                const display = document.getElementById("qbTotalDisplay");
+
+                if (nights > 0) {
+                    display.innerText = `${selectedQuickRoom.price * nights} Gold Coins (${nights} Nights)`;
+                } else {
+                    display.innerText = "Invalid Dates";
+                }
+            };
+
+            document.getElementById("quickBookForm").addEventListener("submit", (e) => {
+                e.preventDefault();
+                if (!selectedQuickRoom) return;
+
+                const res = DB.createReservation({
+                    userId: currentUser.id,
+                    roomId: selectedQuickRoom.id,
+                    checkIn: document.getElementById("qbCheckIn").value,
+                    checkOut: document.getElementById("qbCheckOut").value,
+                    guests: document.getElementById("qbGuests").value,
+                    specialRequests: document.getElementById("qbRequests").value
+                });
+
+                if (res.success) {
+                    alert(`⚡ Heimdall has granted your stay in ${selectedQuickRoom.name}! Voucher #${res.reservation.id} is registered.`);
+                    closeQuickBookModal();
+                    renderRoomsGrid();
+                } else {
+                    alert(res.message);
+                }
+            });
+
+            renderRoomsGrid();
+        }
+    </script>
+</body>
+
+</html>

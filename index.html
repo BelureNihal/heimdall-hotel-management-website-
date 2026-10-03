@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hotel Asgard - Realm of the Gods | Guarded by Heimdall</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="assets/heimdall.png" type="image/png">
+</head>
+
+<body>
+    <!-- ROYAL ASGARD NAVIGATION -->
+    <nav class="asgard-nav">
+        <div class="nav-container">
+            <a href="index.html" class="brand-wrapper">
+                <img src="assets/heimdall.png" alt="Heimdall Gatekeeper" class="brand-heimdall-icon">
+                <div class="brand-text">
+                    <h1>Hotel Asgard</h1>
+                    <p>Citadel of the Nine Realms</p>
+                </div>
+            </a>
+
+            <ul class="nav-links">
+                <li><a href="index.html" class="active">🛡️ Gatekeeper Portal</a></li>
+                <li><a href="rooms.html">🏰 Celestial Chambers</a></li>
+                <li><a href="notepad.html">📜 Royal Notepad (.txt)</a></li>
+                <li id="ownerNavLink" style="display: none;"><a href="owner.html">⚡ Allfather Console</a></li>
+            </ul>
+
+            <div class="nav-auth-user">
+                <div class="user-badge" id="navUserBadge">
+                    <span id="userAvatar">⚡</span>
+                    <span id="navUsername">Thor Odinson</span>
+                </div>
+                <button onclick="Auth.logout()" class="btn btn-crimson btn-sm">Depart (Logout)</button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        <!-- HEIMDALL HERO SPOTLIGHT & GATEKEEPER GREETING -->
+        <section class="hero-heimdall-section">
+            <div class="hero-content">
+                <div class="hero-tagline">✨ The Bifrost Gatehouse • Eternal Sanctuary</div>
+                <h1>Welcome to Hotel Asgard</h1>
+                
+                <div class="hero-speech-bubble">
+                    <strong>Heimdall, Watchman of the Nine Realms:</strong>
+                    "I see your arrival across the cosmic bridge, traveler. I hold the sacred Hofund sword to unlock your golden chamber. Choose your dates and state your request, and your stay shall be inscribed into the eternal scrolls and exported to your royal notepad."
+                </div>
+
+                <div class="hero-actions">
+                    <a href="#bookingSection" class="btn btn-gold">⚔️ Book Chamber with Heimdall</a>
+                    <button onclick="downloadMyNotepad()" class="btn btn-notepad">📥 Save Account to Notepad (.txt)</button>
+                    <a href="rooms.html" class="btn btn-outline-gold">🔍 Explore Chambers</a>
+                </div>
+            </div>
+
+            <div class="heimdall-portrait-frame">
+                <img src="assets/heimdall.png" alt="Heimdall Gatekeeper" class="heimdall-img">
+                <div class="heimdall-badge">Heimdall • Gatekeeper</div>
+            </div>
+        </section>
+
+        <!-- CREATE OPERATION: BOOKING WORKSPACE -->
+        <section id="bookingSection" class="asgard-card" style="margin-bottom: 2.5rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+                <div>
+                    <h2 style="font-family: var(--font-heading); color: var(--gold-light); font-size: 1.5rem;">
+                        🗡️ Chamber Reservation Engine (Create)
+                    </h2>
+                    <p style="color: var(--text-secondary); font-size: 0.9rem;">
+                        Heimdall verifies room availability across the realm instantly upon submission.
+                    </p>
+                </div>
+                <span class="status-pill status-available" id="availableCountBadge">Loading Chambers...</span>
+            </div>
+
+            <form id="asgardBookingForm">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.2rem;">
+                    <div class="form-group">
+                        <label for="bookingRoom">Select Divine Chamber</label>
+                        <select id="bookingRoom" class="form-control" required onchange="calculateEstimatedTotal()">
+                            <!-- Populated dynamically via JS -->
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="checkIn">Bifrost Arrival (Check-In)</label>
+                        <input type="date" id="checkIn" class="form-control" required onchange="calculateEstimatedTotal()">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="checkOut">Realm Departure (Check-Out)</label>
+                        <input type="date" id="checkOut" class="form-control" required onchange="calculateEstimatedTotal()">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="guests">Guests (Deities/Warriors)</label>
+                        <input type="number" id="guests" class="form-control" min="1" max="6" value="1" required>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-top: 0.5rem;">
+                    <label for="specialRequests">Special Inscriptions & Requests (Mead, Feast, Armor Rack)</label>
+                    <input type="text" id="specialRequests" class="form-control" placeholder="E.g., Extra mead keg, thunder-shielded windows, golden banquet layout...">
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; background: #120b08; border: 1px solid var(--border-gold); padding: 1rem 1.25rem; border-radius: 8px; margin-top: 1rem;">
+                    <div>
+                        <span style="color: var(--text-secondary); font-size: 0.85rem;">Estimated Investment:</span>
+                        <div id="bookingEstimateDisplay" style="font-size: 1.4rem; font-weight: 700; color: var(--gold-primary);">
+                            0 Gold Coins
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-gold" style="padding: 0.8rem 1.8rem;">
+                        ⚡ Seal Booking with Heimdall
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <!-- READ, UPDATE, DELETE OPERATIONS: USER RESERVATIONS -->
+        <section class="asgard-card" style="margin-bottom: 2.5rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 1rem;">
+                <div>
+                    <h2 style="font-family: var(--font-heading); color: var(--gold-light); font-size: 1.5rem;">
+                        📜 Your Sacred Reservations (Read, Update, Delete)
+                    </h2>
+                    <p style="color: var(--text-secondary); font-size: 0.9rem;">
+                        All bookings tied to your divine account. You can modify dates, cancel, or download vouchers.
+                    </p>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button onclick="downloadMyNotepad()" class="btn btn-notepad btn-sm">
+                        📥 Download Notepad (.txt)
+                    </button>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="asgard-table">
+                    <thead>
+                        <tr>
+                            <th>Voucher ID</th>
+                            <th>Chamber</th>
+                            <th>Arrival</th>
+                            <th>Departure</th>
+                            <th>Immortal Guests</th>
+                            <th>Total Gold</th>
+                            <th>Status</th>
+                            <th style="text-align: right;">Heimdall Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="userReservationsTbody">
+                        <!-- Populated dynamically via JS -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- NOTEPAD SAVE & LEDGER VIEWER SECTION -->
+        <section class="asgard-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 10px;">
+                <div>
+                    <h2 style="font-family: var(--font-heading); color: var(--gold-light); font-size: 1.4rem;">
+                        📝 Royal Notepad & Audit Ledger
+                    </h2>
+                    <p style="color: var(--text-secondary); font-size: 0.85rem;">
+                        Every reservation and change automatically writes into this Notepad. Click below to download as a real .txt file!
+                    </p>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <a href="notepad.html" class="btn btn-outline-gold btn-sm">✏️ Open Full Notepad App</a>
+                    <button onclick="downloadMyNotepad()" class="btn btn-notepad btn-sm">💾 Download as Notepad (.txt)</button>
+                </div>
+            </div>
+
+            <!-- Virtual Notepad Window -->
+            <div class="notepad-container">
+                <div class="notepad-header">
+                    <div class="notepad-title">
+                        <span>📄</span>
+                        <span id="notepadFileName">asgard_guest_receipt.txt - Notepad</span>
+                    </div>
+                    <div class="notepad-actions">
+                        <button onclick="downloadMyNotepad()" class="btn btn-notepad btn-sm" style="padding: 2px 8px; font-size: 11px;">Save .txt</button>
+                    </div>
+                </div>
+                <pre class="notepad-body" id="notepadPreviewContent">Loading royal parchment records...</pre>
+            </div>
+        </section>
+    </main>
+
+    <!-- UPDATE RESERVATION MODAL (UPDATE OPERATION) -->
+    <div id="editResModal" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3>🗡️ Modify Chamber Reservation</h3>
+                <button class="modal-close" onclick="closeEditModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="editResForm">
+                    <input type="hidden" id="editResId">
+                    
+                    <div class="form-group">
+                        <label>Voucher Reference</label>
+                        <input type="text" id="editResDisplayId" class="form-control" readonly style="background:#1c1410; color:var(--gold-light);">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Chamber</label>
+                        <input type="text" id="editResRoomName" class="form-control" readonly style="background:#1c1410;">
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="form-group">
+                            <label for="editCheckIn">New Arrival Date</label>
+                            <input type="date" id="editCheckIn" class="form-control" required onchange="calculateEditTotal()">
+                        </div>
+                        <div class="form-group">
+                            <label for="editCheckOut">New Departure Date</label>
+                            <input type="date" id="editCheckOut" class="form-control" required onchange="calculateEditTotal()">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editGuests">Total Guests</label>
+                        <input type="number" id="editGuests" class="form-control" min="1" max="6" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editSpecialRequests">Special Inscription / Requests</label>
+                        <textarea id="editSpecialRequests" class="form-control" rows="2"></textarea>
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; background: #120b08; padding: 0.75rem 1rem; border-radius: 6px; margin-bottom: 1.25rem; border: 1px solid var(--border-gold);">
+                        <span style="font-size: 0.85rem; color: var(--text-secondary);">Updated Total:</span>
+                        <strong id="editTotalDisplay" style="color: var(--gold-primary); font-size: 1.2rem;">--</strong>
+                    </div>
+
+                    <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                        <button type="button" class="btn btn-outline-gold" onclick="closeEditModal()">Cancel</button>
+                        <button type="submit" class="btn btn-gold">Confirm Updates</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ASGARD FOOTER -->
+    <footer class="asgard-footer">
+        <div class="footer-content">
+            <div class="footer-heimdall-sig">⚔️ "None shall enter the Golden City without Heimdall's Vigilance" ⚔️</div>
+            <p>Hotel Asgard • Sovereign Sanctuary of the Aesir • Realm Management System</p>
+            <p style="font-size: 0.75rem;">Default Guest: <code>guest</code> (pass: <code>password123</code>) | Default Owner: <code>admin</code> (pass: <code>admin123</code>)</p>
+        </div>
+    </footer>
+
+    <!-- LOGIC SCRIPTS -->
+    <script src="db.js"></script>
+    <script>
+        // Protect Route: Any logged in user
+        const currentUser = Auth.protectRoute();
+
+        if (currentUser) {
+            // Update UI user badge
+            document.getElementById("navUsername").innerText = `${currentUser.name} (${currentUser.realm})`;
+            document.getElementById("userAvatar").innerText = currentUser.avatar || "⚡";
+            
+            // If user is owner, show owner link in nav
+            if (currentUser.role === "owner") {
+                document.getElementById("ownerNavLink").style.display = "inline-block";
+            }
+
+            // Set default dates for booking form (tomorrow to 3 days after)
+            const today = new Date();
+            const tomorrow = new Date(today);
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            const departure = new Date(tomorrow);
+            departure.setDate(departure.getDate() + 3);
+
+            document.getElementById("checkIn").value = tomorrow.toISOString().split("T")[0];
+            document.getElementById("checkOut").value = departure.toISOString().split("T")[0];
+            document.getElementById("checkIn").min = today.toISOString().split("T")[0];
+            document.getElementById("checkOut").min = tomorrow.toISOString().split("T")[0];
+
+            // Render Dashboard Data
+            function renderDashboard() {
+                // Populate Available Rooms
+                const roomSelect = document.getElementById("bookingRoom");
+                roomSelect.innerHTML = "";
+                const allRooms = DB.getRooms();
+                const availableRooms = allRooms.filter(r => r.status === "Available");
+
+                document.getElementById("availableCountBadge").innerText = `${availableRooms.length} Chambers Available`;
+
+                if (availableRooms.length === 0) {
+                    roomSelect.innerHTML = `<option value="">⚠️ All Chambers Occupied across Asgard</option>`;
+                } else {
+                    availableRooms.forEach(room => {
+                        const opt = document.createElement("option");
+                        opt.value = room.id;
+                        opt.dataset.price = room.price;
+                        opt.innerText = `Room #${room.number} - ${room.name} (${room.price} Gold/night)`;
+                        roomSelect.appendChild(opt);
+                    });
+                }
+
+                calculateEstimatedTotal();
+
+                // Render User Bookings (READ)
+                const tbody = document.getElementById("userReservationsTbody");
+                tbody.innerHTML = "";
+                const userBookings = DB.getUserReservations(currentUser.id);
+
+                if (userBookings.length === 0) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="8" style="text-align: center; padding: 2.5rem; color: var(--text-muted);">
+                                🛡️ You have no active reservations in Hotel Asgard. Heimdall awaits your booking above!
+                            </td>
+                        </tr>
+                    `;
+                } else {
+                    userBookings.forEach(res => {
+                        tbody.innerHTML += `
+                            <tr>
+                                <td><code style="color:var(--gold-light); font-weight:bold;">${res.id}</code></td>
+                                <td>
+                                    <strong>Room #${res.roomNumber}</strong><br>
+                                    <span style="font-size:0.8rem; color:var(--text-muted);">${res.roomName}</span>
+                                </td>
+                                <td>${res.checkIn}</td>
+                                <td>${res.checkOut} <span style="font-size:0.75rem; color:var(--text-muted);">(${res.nights}n)</span></td>
+                                <td>${res.guests} Deity</td>
+                                <td><strong style="color:var(--gold-primary);">${res.totalPrice} Gold</strong></td>
+                                <td><span class="status-pill status-confirmed">${res.status}</span></td>
+                                <td style="text-align: right;">
+                                    <button class="btn btn-outline-gold btn-sm" onclick="openEditModal('${res.id}')">✏️ Modify</button>
+                                    <button class="btn btn-crimson btn-sm" onclick="cancelReservation('${res.id}')">❌ Cancel</button>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                }
+
+                // Render Notepad Preview
+                updateNotepadPreview();
+            }
+
+            // Estimate Total Calculation
+            window.calculateEstimatedTotal = function () {
+                const roomSelect = document.getElementById("bookingRoom");
+                const checkInVal = document.getElementById("checkIn").value;
+                const checkOutVal = document.getElementById("checkOut").value;
+                const display = document.getElementById("bookingEstimateDisplay");
+
+                if (!roomSelect.value || !checkInVal || !checkOutVal) {
+                    display.innerText = "0 Gold Coins";
+                    return;
+                }
+
+                const selectedOption = roomSelect.options[roomSelect.selectedIndex];
+                const price = parseFloat(selectedOption.dataset.price || 0);
+
+                const d1 = new Date(checkInVal);
+                const d2 = new Date(checkOutVal);
+                const nights = Math.ceil((d2 - d1) / (1000 * 60 * 60 * 24));
+
+                if (nights > 0) {
+                    display.innerText = `${price * nights} Gold Coins (${nights} Nights)`;
+                } else {
+                    display.innerText = "Invalid Date Range";
+                }
+            };
+
+            // CREATE OPERATION: Form Submission
+            document.getElementById("asgardBookingForm").addEventListener("submit", (e) => {
+                e.preventDefault();
+                const roomId = document.getElementById("bookingRoom").value;
+                const checkIn = document.getElementById("checkIn").value;
+                const checkOut = document.getElementById("checkOut").value;
+                const guests = document.getElementById("guests").value;
+                const specialRequests = document.getElementById("specialRequests").value;
+
+                if (!roomId) {
+                    alert("Heimdall requires you to select an available chamber!");
+                    return;
+                }
+
+                const res = DB.createReservation({
+                    userId: currentUser.id,
+                    roomId: roomId,
+                    checkIn: checkIn,
+                    checkOut: checkOut,
+                    guests: guests,
+                    specialRequests: specialRequests
+                });
+
+                if (res.success) {
+                    alert(`⚡ Hail ${currentUser.name}! Heimdall has sealed Voucher #${res.reservation.id} into the Asgardian Ledger!`);
+                    document.getElementById("specialRequests").value = "";
+                    renderDashboard();
+                } else {
+                    alert(res.message);
+                }
+            });
+
+            // UPDATE OPERATION: Edit Modal Handlers
+            let currentEditReservation = null;
+
+            window.openEditModal = function (resId) {
+                const res = DB.getReservationById(resId);
+                if (!res) return;
+                currentEditReservation = res;
+
+                document.getElementById("editResId").value = res.id;
+                document.getElementById("editResDisplayId").value = res.id;
+                document.getElementById("editResRoomName").value = `Room #${res.roomNumber} - ${res.roomName} (${res.pricePerNight} Gold/night)`;
+                document.getElementById("editCheckIn").value = res.checkIn;
+                document.getElementById("editCheckOut").value = res.checkOut;
+                document.getElementById("editGuests").value = res.guests;
+                document.getElementById("editSpecialRequests").value = res.specialRequests;
+
+                calculateEditTotal();
+                document.getElementById("editResModal").classList.add("active");
+            };
+
+            window.closeEditModal = function () {
+                document.getElementById("editResModal").classList.remove("active");
+                currentEditReservation = null;
+            };
+
+            window.calculateEditTotal = function () {
+                if (!currentEditReservation) return;
+                const checkInVal = document.getElementById("editCheckIn").value;
+                const checkOutVal = document.getElementById("editCheckOut").value;
+                const display = document.getElementById("editTotalDisplay");
+
+                const d1 = new Date(checkInVal);
+                const d2 = new Date(checkOutVal);
+                const nights = Math.ceil((d2 - d1) / (1000 * 60 * 60 * 24));
+
+                if (nights > 0) {
+                    display.innerText = `${currentEditReservation.pricePerNight * nights} Gold Coins (${nights} Nights)`;
+                } else {
+                    display.innerText = "Invalid Dates";
+                }
+            };
+
+            document.getElementById("editResForm").addEventListener("submit", (e) => {
+                e.preventDefault();
+                const resId = document.getElementById("editResId").value;
+                const checkIn = document.getElementById("editCheckIn").value;
+                const checkOut = document.getElementById("editCheckOut").value;
+                const guests = document.getElementById("editGuests").value;
+                const specialRequests = document.getElementById("editSpecialRequests").value;
+
+                const result = DB.updateReservation(resId, {
+                    checkIn: checkIn,
+                    checkOut: checkOut,
+                    guests: guests,
+                    specialRequests: specialRequests
+                });
+
+                if (result.success) {
+                    alert("⚡ Chamber reservation dates & requests updated successfully!");
+                    closeEditModal();
+                    renderDashboard();
+                } else {
+                    alert(result.message);
+                }
+            });
+
+            // DELETE OPERATION: Cancel Booking
+            window.cancelBooking = function (resId) {
+                if (confirm("Heimdall asks: Do you truly wish to revoke your chamber reservation in Asgard?")) {
+                    const res = DB.deleteReservation(resId, "Guest requested departure cancellation");
+                    if (res.success) {
+                        alert("Reservation cancelled. Chamber inventory released across the Bifrost.");
+                        renderDashboard();
+                    } else {
+                        alert(res.message);
+                    }
+                }
+            };
+            window.cancelReservation = window.cancelBooking;
+
+            // UPDATE NOTEPAD PREVIEW
+            function updateNotepadPreview() {
+                const report = DB.generateUserNotepadReport(currentUser);
+                document.getElementById("notepadPreviewContent").innerText = report;
+                document.getElementById("notepadFileName").innerText = `${currentUser.username}_asgard_notepad.txt - Notepad`;
+            }
+
+            // DOWNLOAD AS NOTEPAD (.txt) FILE
+            window.downloadMyNotepad = function () {
+                const report = DB.generateUserNotepadReport(currentUser);
+                const filename = `${currentUser.username}_asgard_notepad.txt`;
+                DB.downloadAsNotepadTxt(filename, report);
+            };
+
+            // Initial Render
+            renderDashboard();
+        }
+    </script>
+</body>
+
+</html>

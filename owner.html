@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Allfather & Gatekeeper Console - Hotel Asgard</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="assets/heimdall.png" type="image/png">
+    <style>
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: #19100c;
+            border: 1px solid var(--border-gold);
+            border-radius: 10px;
+            padding: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+        }
+
+        .stat-icon {
+            font-size: 2.2rem;
+            background: rgba(229, 193, 88, 0.1);
+            width: 55px;
+            height: 55px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--border-gold);
+        }
+
+        .stat-val {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: var(--gold-light);
+            font-family: var(--font-heading);
+            line-height: 1.1;
+        }
+
+        .stat-lbl {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- NAVIGATION -->
+    <nav class="asgard-nav" style="border-bottom: 2px solid var(--gold-primary);">
+        <div class="nav-container">
+            <a href="owner.html" class="brand-wrapper">
+                <img src="assets/heimdall.png" alt="Heimdall Gatekeeper" class="brand-heimdall-icon">
+                <div class="brand-text">
+                    <h1>Hotel Asgard • Owner Executive Console</h1>
+                    <p>Heimdall Watchtower & Allfather Database</p>
+                </div>
+            </a>
+
+            <ul class="nav-links">
+                <li><a href="owner.html" class="active">⚡ Master Console</a></li>
+                <li><a href="index.html">🛡️ Guest Portal View</a></li>
+                <li><a href="rooms.html">🏰 Chambers</a></li>
+                <li><a href="notepad.html">📜 Notepad System</a></li>
+            </ul>
+
+            <div class="nav-auth-user">
+                <div class="user-badge" style="background: rgba(231, 76, 60, 0.15); border-color: rgba(231, 76, 60, 0.5); color: #ff9999;">
+                    <span>👁️</span>
+                    <span>Heimdall (Owner / Admin)</span>
+                </div>
+                <button onclick="Auth.logout()" class="btn btn-crimson btn-sm">Exit Watchtower</button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        <!-- TOP BANNER & ACTIONS -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+            <div>
+                <div style="color: var(--gold-primary); font-family: var(--font-heading); font-size: 0.85rem; letter-spacing: 2px;">
+                    ✦ CENTRAL CITADEL DATABASE ENGINE ✦
+                </div>
+                <h1 style="font-family: var(--font-heading); font-size: 2.2rem; color: var(--gold-light);">
+                    Executive Gatekeeper Terminal
+                </h1>
+                <p style="color: var(--text-secondary); font-size: 0.9rem;">
+                    Full CRUD access across all rooms, guest reservations, and automated Notepad exports.
+                </p>
+            </div>
+
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <button onclick="openNewChamberModal()" class="btn btn-gold">
+                    ➕ Add New Chamber (Create)
+                </button>
+                <button onclick="downloadMasterNotepadReport()" class="btn btn-notepad">
+                    💾 Export Master DB to Notepad (.txt)
+                </button>
+            </div>
+        </div>
+
+        <!-- STATS BAR -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">💰</div>
+                <div>
+                    <div class="stat-val" id="statGrossRevenue">0 Gold</div>
+                    <div class="stat-lbl">Total Gross Revenue</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">🏰</div>
+                <div>
+                    <div class="stat-val" id="statOccupancy">0 / 0</div>
+                    <div class="stat-lbl">Occupancy Status</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">📜</div>
+                <div>
+                    <div class="stat-val" id="statTotalBookings">0</div>
+                    <div class="stat-lbl">Active Bookings</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">👥</div>
+                <div>
+                    <div class="stat-val" id="statTotalUsers">0</div>
+                    <div class="stat-lbl">Registered Travelers</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION 1: MASTER RESERVATIONS AUDIT LEDGER (READ, UPDATE, DELETE) -->
+        <section class="asgard-card" style="margin-bottom: 2.5rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 1rem;">
+                <div>
+                    <h2 style="font-family: var(--font-heading); color: var(--gold-light); font-size: 1.4rem;">
+                        📋 Master Guest Reservation Ledger (All Accounts)
+                    </h2>
+                    <p style="color: var(--text-secondary); font-size: 0.85rem;">
+                        Global registry of all bookings across Nine Realms guests stored in the central database.
+                    </p>
+                </div>
+
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <input type="text" id="filterResInput" placeholder="Filter by guest or room..." 
+                           class="form-control" style="width: 220px; padding: 0.4rem 0.8rem; font-size: 0.85rem;"
+                           oninput="renderMasterLedger()">
+                    <button onclick="downloadMasterNotepadReport()" class="btn btn-notepad btn-sm">
+                        📥 Save to Notepad (.txt)
+                    </button>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="asgard-table">
+                    <thead>
+                        <tr>
+                            <th>Voucher ID</th>
+                            <th>Guest Traveler</th>
+                            <th>Assigned Chamber</th>
+                            <th>Arrival</th>
+                            <th>Departure</th>
+                            <th>Gross Billed</th>
+                            <th>State</th>
+                            <th style="text-align: right;">Administrative Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="masterReservationsTbody">
+                        <!-- Populated via JS -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- SECTION 2: ROOM INVENTORY & RATE MATRIX (CREATE, READ, UPDATE, DELETE) -->
+        <section class="asgard-card" style="margin-bottom: 2.5rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 1rem;">
+                <div>
+                    <h2 style="font-family: var(--font-heading); color: var(--gold-light); font-size: 1.4rem;">
+                        👑 Room Inventory & Global Rate Matrix (Chamber CRUD)
+                    </h2>
+                    <p style="color: var(--text-secondary); font-size: 0.85rem;">
+                        Update nightly rates, manage occupancy statuses, or add new royal wings to the palace.
+                    </p>
+                </div>
+
+                <button onclick="openNewChamberModal()" class="btn btn-gold btn-sm">
+                    ➕ Add Chamber
+                </button>
+            </div>
+
+            <div class="table-responsive">
+                <table class="asgard-table">
+                    <thead>
+                        <tr>
+                            <th>Room #</th>
+                            <th>Chamber Name & Classification</th>
+                            <th>Capacity</th>
+                            <th>Gold / Night</th>
+                            <th>Status</th>
+                            <th style="text-align: right;">Inventory Control</th>
+                        </tr>
+                    </thead>
+                    <tbody id="adminRoomsTbody">
+                        <!-- Populated via JS -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- SECTION 3: MASTER DATABASE NOTEPAD (.TXT) VIEWER -->
+        <section class="asgard-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 10px;">
+                <div>
+                    <h2 style="font-family: var(--font-heading); color: var(--gold-light); font-size: 1.4rem;">
+                        💾 Master Database Notepad File (.txt)
+                    </h2>
+                    <p style="color: var(--text-secondary); font-size: 0.85rem;">
+                        Real-time text export of the complete database for website owners to store or archive in Notepad.
+                    </p>
+                </div>
+                <button onclick="downloadMasterNotepadReport()" class="btn btn-notepad">
+                    💾 Download as Master_Audit.txt
+                </button>
+            </div>
+
+            <div class="notepad-container">
+                <div class="notepad-header">
+                    <div class="notepad-title">
+                        <span>📄</span>
+                        <span>hotel_asgard_master_database_audit.txt - Notepad</span>
+                    </div>
+                    <div class="notepad-actions">
+                        <button onclick="downloadMasterNotepadReport()" class="btn btn-notepad btn-sm" style="padding: 2px 8px; font-size: 11px;">Save .txt</button>
+                    </div>
+                </div>
+                <pre class="notepad-body" id="masterNotepadDisplay">Generating master audit notepad ledger...</pre>
+            </div>
+        </section>
+    </main>
+
+    <!-- CREATE CHAMBER MODAL -->
+    <div id="newChamberModal" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3>👑 Inaugurate New Celestial Chamber</h3>
+                <button class="modal-close" onclick="closeNewChamberModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="newChamberForm">
+                    <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 1rem;">
+                        <div class="form-group">
+                            <label for="newRoomNumber">Room #</label>
+                            <input type="text" id="newRoomNumber" class="form-control" placeholder="E.g. 302" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="newRoomName">Chamber Name</label>
+                            <input type="text" id="newRoomName" class="form-control" placeholder="E.g. Odin's Golden Hall" required>
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="form-group">
+                            <label for="newRoomType">Classification</label>
+                            <select id="newRoomType" class="form-control">
+                                <option value="Royal Suite">Royal Suite</option>
+                                <option value="Deluxe Observatory">Deluxe Observatory</option>
+                                <option value="Grand Hall">Grand Hall</option>
+                                <option value="Executive Suite">Executive Suite</option>
+                                <option value="Standard Deluxe">Standard Deluxe</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="newRoomPrice">Gold / Night</label>
+                            <input type="number" id="newRoomPrice" class="form-control" min="20" placeholder="150" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="newRoomCapacity">Max Guests / Capacity</label>
+                        <input type="number" id="newRoomCapacity" class="form-control" min="1" max="8" value="2" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="newRoomAmenities">Amenities (comma separated)</label>
+                        <input type="text" id="newRoomAmenities" class="form-control" placeholder="Bifrost View, Mead Dispenser, Thermal Hearth">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="newRoomDesc">Chamber Description</label>
+                        <textarea id="newRoomDesc" class="form-control" rows="3" placeholder="Describe the celestial comforts of this chamber..."></textarea>
+                    </div>
+
+                    <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                        <button type="button" class="btn btn-outline-gold" onclick="closeNewChamberModal()">Cancel</button>
+                        <button type="submit" class="btn btn-gold">Inaugurate Chamber</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- UPDATE RESERVATION MODAL (OWNER) -->
+    <div id="adminEditResModal" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3>⚡ Modify Reservation (Owner Override)</h3>
+                <button class="modal-close" onclick="closeAdminEditResModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="adminEditResForm">
+                    <input type="hidden" id="admResId">
+
+                    <div class="form-group">
+                        <label>Voucher Ref</label>
+                        <input type="text" id="admResDisplayId" class="form-control" readonly style="background:#1b120d; color:var(--gold-light);">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Guest & Assigned Chamber</label>
+                        <input type="text" id="admResGuestRoom" class="form-control" readonly style="background:#1b120d;">
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="form-group">
+                            <label for="admCheckIn">Arrival Date</label>
+                            <input type="date" id="admCheckIn" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="admCheckOut">Departure Date</label>
+                            <input type="date" id="admCheckOut" class="form-control" required>
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="form-group">
+                            <label for="admGuests">Guests Count</label>
+                            <input type="number" id="admGuests" class="form-control" min="1" max="8" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="admStatus">Booking Status</label>
+                            <select id="admStatus" class="form-control">
+                                <option value="Confirmed">Confirmed</option>
+                                <option value="Checked-In">Checked-In</option>
+                                <option value="Completed">Completed</option>
+                                <option value="VIP Royal Escort">VIP Royal Escort</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="admRequests">Special Requests & Inscriptions</label>
+                        <textarea id="admRequests" class="form-control" rows="2"></textarea>
+                    </div>
+
+                    <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                        <button type="button" class="btn btn-outline-gold" onclick="closeAdminEditResModal()">Cancel</button>
+                        <button type="submit" class="btn btn-gold">Save Overrides</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="asgard-footer">
+        <div class="footer-content">
+            <div class="footer-heimdall-sig">⚔️ Heimdall's Watchtower • Complete Citadel Data Management ⚔️</div>
+            <p>Hotel Asgard • Sovereign Sanctuary of the Aesir • Realm Management System</p>
+        </div>
+    </footer>
+
+    <!-- JAVASCRIPT -->
+    <script src="db.js"></script>
+    <script>
+        // Protect Route: Only owners
+        const currentOwner = Auth.protectRoute("owner");
+
+        if (currentOwner) {
+
+            function renderOwnerConsole() {
+                const rooms = DB.getRooms();
+                const reservations = DB.getReservations();
+                const users = DB.getUsers();
+
+                // Compute stats
+                const totalRev = reservations.reduce((acc, r) => acc + (r.totalPrice || 0), 0);
+                const occupiedCount = rooms.filter(r => r.status === "Occupied").length;
+
+                document.getElementById("statGrossRevenue").innerText = `${totalRev.toLocaleString()} Gold`;
+                document.getElementById("statOccupancy").innerText = `${occupiedCount} / ${rooms.length}`;
+                document.getElementById("statTotalBookings").innerText = reservations.length;
+                document.getElementById("statTotalUsers").innerText = users.length;
+
+                // Render Master Ledger
+                renderMasterLedger();
+
+                // Render Rooms Inventory
+                renderRoomsTable();
+
+                // Render Notepad Preview
+                renderNotepadPreview();
+            }
+
+            // Render Master Ledger
+            window.renderMasterLedger = function() {
+                const tbody = document.getElementById("masterReservationsTbody");
+                tbody.innerHTML = "";
+                const reservations = DB.getReservations();
+                const filter = (document.getElementById("filterResInput").value || "").toLowerCase();
+
+                const filtered = reservations.filter(r => {
+                    return r.id.toLowerCase().includes(filter) ||
+                           r.customerName.toLowerCase().includes(filter) ||
+                           r.roomNumber.includes(filter) ||
+                           r.roomName.toLowerCase().includes(filter);
+                });
+
+                if (filtered.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:2rem; color:var(--text-muted);">No reservations found matching criteria.</td></tr>`;
+                    return;
+                }
+
+                filtered.forEach(res => {
+                    tbody.innerHTML += `
+                        <tr>
+                            <td><code style="color:var(--gold-light); font-weight:bold;">${res.id}</code></td>
+                            <td>
+                                <strong>${res.customerName}</strong><br>
+                                <span style="font-size:0.75rem; color:var(--text-muted);">ID: ${res.userId} • ${res.customerPhone}</span>
+                            </td>
+                            <td>
+                                <strong>Room #${res.roomNumber}</strong><br>
+                                <span style="font-size:0.75rem; color:var(--text-muted);">${res.roomName} (${res.roomType})</span>
+                            </td>
+                            <td>${res.checkIn}</td>
+                            <td>${res.checkOut} (${res.nights}n)</td>
+                            <td><strong style="color:var(--gold-primary);">${res.totalPrice} Gold</strong></td>
+                            <td><span class="status-pill status-confirmed">${res.status}</span></td>
+                            <td style="text-align: right;">
+                                <button class="btn btn-outline-gold btn-sm" onclick="openAdminEditResModal('${res.id}')">✏️ Edit</button>
+                                <button class="btn btn-crimson btn-sm" onclick="adminVoidReservation('${res.id}')">❌ Evict</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            };
+
+            // Render Rooms Table
+            function renderRoomsTable() {
+                const tbody = document.getElementById("adminRoomsTbody");
+                tbody.innerHTML = "";
+                const rooms = DB.getRooms();
+
+                rooms.forEach(room => {
+                    const isAvail = room.status === "Available";
+                    const statusClass = isAvail ? "status-available" : "status-occupied";
+
+                    tbody.innerHTML += `
+                        <tr>
+                            <td><strong style="color:var(--gold-light); font-size:1.1rem;">#${room.number}</strong></td>
+                            <td>
+                                <strong>${room.name}</strong><br>
+                                <span style="font-size:0.75rem; color:var(--text-muted);">${room.type} • ${room.amenities.slice(0, 2).join(', ')}</span>
+                            </td>
+                            <td>${room.capacity} Deities</td>
+                            <td>
+                                <div style="display:flex; align-items:center; gap:6px;">
+                                    $<input type="number" id="rate_${room.id}" value="${room.price}" min="10" 
+                                           style="width: 80px; padding: 4px 6px; font-size: 0.85rem;" class="form-control">
+                                    <button class="btn btn-gold btn-sm" style="padding: 4px 8px;" onclick="updateRoomRate('${room.id}')">Save</button>
+                                </div>
+                            </td>
+                            <td>
+                                <select id="status_${room.id}" class="form-control" style="width:130px; padding:4px 6px; font-size:0.8rem;" onchange="changeRoomStatus('${room.id}')">
+                                    <option value="Available" ${room.status === 'Available' ? 'selected' : ''}>Available</option>
+                                    <option value="Occupied" ${room.status === 'Occupied' ? 'selected' : ''}>Occupied</option>
+                                    <option value="Maintenance" ${room.status === 'Maintenance' ? 'selected' : ''}>Maintenance</option>
+                                </select>
+                            </td>
+                            <td style="text-align: right;">
+                                <button class="btn btn-crimson btn-sm" onclick="deleteCitadelRoom('${room.id}')" title="Delete Chamber">🗑️ Remove</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
+
+            // UPDATE ROOM RATE (UPDATE OPERATION)
+            window.updateRoomRate = function(roomId) {
+                const newPrice = document.getElementById(`rate_${roomId}`).value;
+                if (!newPrice || parseFloat(newPrice) <= 0) return alert("Please specify a valid price.");
+
+                const res = DB.updateRoom(roomId, { price: parseFloat(newPrice) });
+                if (res.success) {
+                    alert(`Chamber #${res.room.number} rate updated to ${newPrice} Gold Coins.`);
+                    renderOwnerConsole();
+                } else {
+                    alert(res.message);
+                }
+            };
+
+            // UPDATE ROOM STATUS (UPDATE OPERATION)
+            window.changeRoomStatus = function(roomId) {
+                const newStatus = document.getElementById(`status_${roomId}`).value;
+                DB.updateRoomStatus(roomId, newStatus);
+                renderOwnerConsole();
+            };
+
+            // DELETE ROOM (DELETE OPERATION)
+            window.deleteCitadelRoom = function(roomId) {
+                if (confirm("Are you sure you want to permanently decommission this chamber from Hotel Asgard?")) {
+                    const res = DB.deleteRoom(roomId);
+                    if (res.success) {
+                        alert("Chamber decommissioned.");
+                        renderOwnerConsole();
+                    } else {
+                        alert(res.message);
+                    }
+                }
+            };
+
+            // CREATE NEW CHAMBER (CREATE OPERATION)
+            window.openNewChamberModal = function() {
+                document.getElementById("newChamberModal").classList.add("active");
+            };
+
+            window.closeNewChamberModal = function() {
+                document.getElementById("newChamberModal").classList.remove("active");
+            };
+
+            document.getElementById("newChamberForm").addEventListener("submit", (e) => {
+                e.preventDefault();
+                const num = document.getElementById("newRoomNumber").value;
+                const name = document.getElementById("newRoomName").value;
+                const type = document.getElementById("newRoomType").value;
+                const price = document.getElementById("newRoomPrice").value;
+                const cap = document.getElementById("newRoomCapacity").value;
+                const amenitiesStr = document.getElementById("newRoomAmenities").value;
+                const desc = document.getElementById("newRoomDesc").value;
+
+                const amenities = amenitiesStr ? amenitiesStr.split(",").map(s => s.trim()) : ["Bifrost View", "Enchanted Fire"];
+
+                const res = DB.createRoom({
+                    number: num,
+                    name: name,
+                    type: type,
+                    price: price,
+                    capacity: cap,
+                    amenities: amenities,
+                    desc: desc
+                });
+
+                if (res.success) {
+                    alert(`⚡ Royal Chamber #${num} (${name}) inaugurated by Heimdall!`);
+                    document.getElementById("newChamberForm").reset();
+                    closeNewChamberModal();
+                    renderOwnerConsole();
+                } else {
+                    alert(res.message);
+                }
+            });
+
+            // EDIT RESERVATION (ADMIN OVERRIDE)
+            window.openAdminEditResModal = function(resId) {
+                const res = DB.getReservationById(resId);
+                if (!res) return;
+
+                document.getElementById("admResId").value = res.id;
+                document.getElementById("admResDisplayId").value = res.id;
+                document.getElementById("admResGuestRoom").value = `${res.customerName} • Room #${res.roomNumber} (${res.roomName})`;
+                document.getElementById("admCheckIn").value = res.checkIn;
+                document.getElementById("admCheckOut").value = res.checkOut;
+                document.getElementById("admGuests").value = res.guests;
+                document.getElementById("admStatus").value = res.status;
+                document.getElementById("admRequests").value = res.specialRequests;
+
+                document.getElementById("adminEditResModal").classList.add("active");
+            };
+
+            window.closeAdminEditResModal = function() {
+                document.getElementById("adminEditResModal").classList.remove("active");
+            };
+
+            document.getElementById("adminEditResForm").addEventListener("submit", (e) => {
+                e.preventDefault();
+                const id = document.getElementById("admResId").value;
+                const checkIn = document.getElementById("admCheckIn").value;
+                const checkOut = document.getElementById("admCheckOut").value;
+                const guests = document.getElementById("admGuests").value;
+                const status = document.getElementById("admStatus").value;
+                const requests = document.getElementById("admRequests").value;
+
+                const res = DB.updateReservation(id, {
+                    checkIn: checkIn,
+                    checkOut: checkOut,
+                    guests: guests,
+                    status: status,
+                    specialRequests: requests
+                });
+
+                if (res.success) {
+                    alert("Reservation record updated in Master Database.");
+                    closeAdminEditResModal();
+                    renderOwnerConsole();
+                } else {
+                    alert(res.message);
+                }
+            });
+
+            // DELETE RESERVATION (ADMIN VOID / EVICT)
+            window.adminVoidReservation = function(resId) {
+                if (confirm(`Heimdall Order: Are you certain you wish to void and evict reservation #${resId}?`)) {
+                    const res = DB.deleteReservation(resId, "Administrative Void / Cancellation by Heimdall");
+                    if (res.success) {
+                        alert("Reservation removed from registry. Room restored to available.");
+                        renderOwnerConsole();
+                    } else {
+                        alert(res.message);
+                    }
+                }
+            };
+
+            // RENDER NOTEPAD PREVIEW
+            function renderNotepadPreview() {
+                const report = DB.generateMasterDatabaseNotepadReport();
+                document.getElementById("masterNotepadDisplay").innerText = report;
+            }
+
+            // DOWNLOAD MASTER NOTEPAD (.txt) FILE
+            window.downloadMasterNotepadReport = function() {
+                const report = DB.generateMasterDatabaseNotepadReport();
+                DB.downloadAsNotepadTxt("hotel_asgard_master_database_audit.txt", report);
+            };
+
+            // Initial execution
+            renderOwnerConsole();
+        }
+    </script>
+</body>
+
+</html>
